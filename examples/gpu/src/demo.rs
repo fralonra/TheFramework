@@ -6,6 +6,8 @@ use crate::compute::Compute;
 
 pub struct Demo {
     canvas_layer: usize,
+    origin_x: f32,
+    origin_y: f32,
     translate_x: f32,
     translate_y: f32,
 
@@ -24,6 +26,8 @@ impl TheTrait for Demo {
     {
         Self {
             canvas_layer: 0,
+            origin_x: 0.0,
+            origin_y: 0.0,
             translate_x: 0.0,
             translate_y: 0.0,
 
@@ -89,6 +93,16 @@ impl TheTrait for Demo {
 
         let mut layout = TheTextLayout::new(TheId::named("Sidebar Layout"));
         layout.limiter_mut().set_max_width(sidebar_width);
+
+        let mut origin_x = TheSlider::new(TheId::named("OriginX"));
+        origin_x.set_value(TheValue::Float(self.origin_x));
+        origin_x.set_range(TheValue::RangeF32(0.0..=1000.0));
+        layout.add_pair("Transform Origin X".to_string(), Box::new(origin_x));
+
+        let mut origin_y = TheSlider::new(TheId::named("OriginY"));
+        origin_y.set_value(TheValue::Float(self.origin_y));
+        origin_y.set_range(TheValue::RangeF32(0.0..=1000.0));
+        layout.add_pair("Transform Origin Y".to_string(), Box::new(origin_y));
 
         let mut scale = TheSlider::new(TheId::named("Scale"));
         scale.set_value(TheValue::Float(1.0));
@@ -180,6 +194,26 @@ impl TheTrait for Demo {
                                     ctx.texture_renderer.layer_mut(self.canvas_layer)
                                 {
                                     layer.scale(scale);
+                                    redraw = true;
+                                }
+                            }
+                        } else if id.name == "OriginX" {
+                            if let TheValue::Float(origin) = value {
+                                if let Some(layer) =
+                                    ctx.texture_renderer.layer_mut(self.canvas_layer)
+                                {
+                                    self.origin_x = origin;
+                                    layer.set_origin(Vec2::new(self.origin_x, self.origin_y));
+                                    redraw = true;
+                                }
+                            }
+                        } else if id.name == "OriginY" {
+                            if let TheValue::Float(origin) = value {
+                                if let Some(layer) =
+                                    ctx.texture_renderer.layer_mut(self.canvas_layer)
+                                {
+                                    self.origin_y = origin;
+                                    layer.set_origin(Vec2::new(self.origin_x, self.origin_y));
                                     redraw = true;
                                 }
                             }
